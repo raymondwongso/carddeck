@@ -29,8 +29,17 @@ func (d *Deck) Insert(ctx context.Context, deck *entity.Deck) (*entity.Deck, err
 	return deck, nil
 }
 
+// GetByID get deck by ID
 func (d *Deck) GetByID(ctx context.Context, id string) (*entity.Deck, error) {
-	panic("not implemented")
+	query := `SELECT id, cards, shuffled, created_at, updated_at FROM public.decks WHERE id = $1`
+
+	deck := entity.NewDeck(false, nil)
+	row := d.db.QueryRowxContext(ctx, query, id)
+	if err := row.Scan(&deck.ID, &deck.Cards, &deck.Shuffled, &deck.CreatedAt, &deck.UpdatedAt); err != nil {
+		return nil, err
+	}
+
+	return deck, nil
 }
 
 func (d *Deck) DrawCards(ctx context.Context, id string, count int64) (*entity.Cards, error) {
