@@ -10,6 +10,9 @@ const (
 
 	ErrCardCodeInvalid    = "carddeck.card.code_invalid"
 	ErrMsgCardCodeInvalid = "unknown card code"
+
+	ErrDeckNotFound    = "carddeck.deck.not_found"
+	ErrMsgDeckNotFound = "deck not found"
 )
 
 type Error struct {

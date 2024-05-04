@@ -19,3 +19,8 @@ func New() *service {
 func (s *service) CreateDeck(ctx context.Context, shuffled bool, cardCodes []string) (*entity.Deck, error) {
 	panic("not implemented")
 }
+
+// GetDeck get deck by ID
+func (s *service) GetDeck(ctx context.Context, id string) (*entity.Deck, error) {
+	panic("not implemented")
+}

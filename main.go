@@ -71,7 +71,7 @@ func server() error {
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /swagger/*", httpSwagger.WrapHandler)
-	mux.HandleFunc("GET /decks", handler.CreateDeck)
+	mux.HandleFunc("POST /decks", handler.CreateDeck)
 	mux.HandleFunc("GET /decks/{id}", handler.GetDeck)
 	mux.HandleFunc("GET /decks/{id}/cards", handler.DrawCards)
 

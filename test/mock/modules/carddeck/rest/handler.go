@@ -49,3 +49,18 @@ func (mr *MockServiceMockRecorder) CreateDeck(ctx, shuffled, cardCodes interface
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateDeck", reflect.TypeOf((*MockService)(nil).CreateDeck), ctx, shuffled, cardCodes)
 }
+
+// GetDeck mocks base method.
+func (m *MockService) GetDeck(ctx context.Context, id string) (*entity.Deck, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetDeck", ctx, id)
+	ret0, _ := ret[0].(*entity.Deck)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetDeck indicates an expected call of GetDeck.
+func (mr *MockServiceMockRecorder) GetDeck(ctx, id interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDeck", reflect.TypeOf((*MockService)(nil).GetDeck), ctx, id)
+}

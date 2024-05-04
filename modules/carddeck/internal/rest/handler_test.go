@@ -3,6 +3,7 @@ package rest_test
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -51,7 +52,7 @@ func TestHandler(t *testing.T) {
 
 func (s *HandlerTestSuite) TestCreateDeck() {
 	s.Run("success - without shuffled and cards parameter", func() {
-		r := httptest.NewRequest(http.MethodGet, "http://localhost", nil)
+		r := httptest.NewRequest(http.MethodPost, "http://localhost", nil)
 		w := httptest.NewRecorder()
 
 		s.svc.EXPECT().CreateDeck(r.Context(), false, nil).Return(defaultDeck, nil)
@@ -70,7 +71,7 @@ func (s *HandlerTestSuite) TestCreateDeck() {
 	})
 
 	s.Run("success - with shuffled and without cards parameter", func() {
-		r := httptest.NewRequest(http.MethodGet, "http://localhost?shuffled=true", nil)
+		r := httptest.NewRequest(http.MethodPost, "http://localhost?shuffled=true", nil)
 		w := httptest.NewRecorder()
 
 		s.svc.EXPECT().CreateDeck(r.Context(), true, nil).Return(defaultDeck, nil)
@@ -89,7 +90,7 @@ func (s *HandlerTestSuite) TestCreateDeck() {
 	})
 
 	s.Run("success - with shuffled and cards parameter", func() {
-		r := httptest.NewRequest(http.MethodGet, "http://localhost?shuffled=true&cards=AS,AD,AC,AH", nil)
+		r := httptest.NewRequest(http.MethodPost, "http://localhost?shuffled=true&cards=AS,AD,AC,AH", nil)
 		w := httptest.NewRecorder()
 
 		s.svc.EXPECT().CreateDeck(r.Context(), true, []string{"AS", "AD", "AC", "AH"}).Return(defaultDeck, nil)
@@ -108,7 +109,7 @@ func (s *HandlerTestSuite) TestCreateDeck() {
 	})
 
 	s.Run("failed - shuffled is invalid", func() {
-		r := httptest.NewRequest(http.MethodGet, "http://localhost?shuffled=NOT_BOOL_PARSABLE", nil)
+		r := httptest.NewRequest(http.MethodPost, "http://localhost?shuffled=NOT_BOOL_PARSABLE", nil)
 		w := httptest.NewRecorder()
 
 		h := rest.NewHandler(s.svc)
@@ -128,7 +129,7 @@ func (s *HandlerTestSuite) TestCreateDeck() {
 	})
 
 	s.Run("failed - service layer returns unexpected error", func() {
-		r := httptest.NewRequest(http.MethodGet, "http://localhost", nil)
+		r := httptest.NewRequest(http.MethodPost, "http://localhost", nil)
 		w := httptest.NewRecorder()
 
 		s.svc.EXPECT().CreateDeck(r.Context(), false, nil).Return(nil, errors.New("unknown error"))
@@ -149,7 +150,7 @@ func (s *HandlerTestSuite) TestCreateDeck() {
 	})
 
 	s.Run("failed - service layer returns invalid card codes", func() {
-		r := httptest.NewRequest(http.MethodGet, "http://localhost", nil)
+		r := httptest.NewRequest(http.MethodPost, "http://localhost", nil)
 		w := httptest.NewRecorder()
 
 		s.svc.EXPECT().CreateDeck(r.Context(), false, nil).Return(nil, entity.NewError(entity.ErrCardCodeInvalid, entity.ErrMsgCardCodeInvalid))
@@ -164,6 +165,71 @@ func (s *HandlerTestSuite) TestCreateDeck() {
 		assert.NoError(s.T(), err)
 
 		expectedError := entity.NewError(entity.ErrCardCodeInvalid, entity.ErrMsgCardCodeInvalid)
+		expected, err := json.Marshal(&expectedError)
+		assert.NoError(s.T(), err)
+		assert.Equal(s.T(), string(expected), strings.TrimSuffix(string(rawResponseBody), "\n"))
+	})
+}
+
+func (s *HandlerTestSuite) TestGetDeck() {
+	tempID := "3cdc5e5a-8f56-4f70-91e6-bd564d04ce79"
+
+	s.Run("success", func() {
+		r := httptest.NewRequest(http.MethodGet, fmt.Sprintf("http://localhost/%s", tempID), nil)
+		w := httptest.NewRecorder()
+
+		s.svc.EXPECT().GetDeck(r.Context(), tempID).Return(defaultDeck, nil)
+
+		h := rest.NewHandler(s.svc)
+		h.CreateDeck(w, r)
+		response := w.Result()
+
+		assert.Equal(s.T(), http.StatusOK, response.StatusCode)
+
+		rawResponseBody, err := io.ReadAll(response.Body)
+		assert.NoError(s.T(), err)
+		expected, err := json.Marshal(&defaultDeck)
+		assert.NoError(s.T(), err)
+		assert.Equal(s.T(), string(expected), strings.TrimSuffix(string(rawResponseBody), "\n"))
+	})
+
+	s.Run("failed - service layer returns unexpected error", func() {
+		r := httptest.NewRequest(http.MethodGet, fmt.Sprintf("http://localhost/%s", tempID), nil)
+		w := httptest.NewRecorder()
+
+		s.svc.EXPECT().GetDeck(r.Context(), tempID).Return(nil, errors.New("unknown error"))
+
+		h := rest.NewHandler(s.svc)
+		h.CreateDeck(w, r)
+		response := w.Result()
+
+		assert.Equal(s.T(), http.StatusInternalServerError, response.StatusCode)
+
+		rawResponseBody, err := io.ReadAll(response.Body)
+		assert.NoError(s.T(), err)
+
+		expectedError := entity.NewError(entity.ErrInternal, entity.ErrMsgInternal)
+		expected, err := json.Marshal(&expectedError)
+		assert.NoError(s.T(), err)
+		assert.Equal(s.T(), string(expected), strings.TrimSuffix(string(rawResponseBody), "\n"))
+	})
+
+	s.Run("failed - deck not found", func() {
+		r := httptest.NewRequest(http.MethodGet, fmt.Sprintf("http://localhost/%s", tempID), nil)
+		w := httptest.NewRecorder()
+
+		s.svc.EXPECT().GetDeck(r.Context(), tempID).Return(nil, entity.NewError(entity.ErrDeckNotFound, entity.ErrMsgDeckNotFound))
+
+		h := rest.NewHandler(s.svc)
+		h.CreateDeck(w, r)
+		response := w.Result()
+
+		assert.Equal(s.T(), http.StatusNotFound, response.StatusCode)
+
+		rawResponseBody, err := io.ReadAll(response.Body)
+		assert.NoError(s.T(), err)
+
+		expectedError := entity.NewError(entity.ErrDeckNotFound, entity.ErrMsgDeckNotFound)
 		expected, err := json.Marshal(&expectedError)
 		assert.NoError(s.T(), err)
 		assert.Equal(s.T(), string(expected), strings.TrimSuffix(string(rawResponseBody), "\n"))

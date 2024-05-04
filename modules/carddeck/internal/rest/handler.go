@@ -15,6 +15,7 @@ import (
 // Service defines interfaces for carddeck usecases
 type Service interface {
 	CreateDeck(ctx context.Context, shuffled bool, cardCodes []string) (*entity.Deck, error)
+	GetDeck(ctx context.Context, id string) (*entity.Deck, error)
 }
 
 // Handler defines REST API Handler for card deck
