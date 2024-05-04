@@ -50,6 +50,21 @@ func (mr *MockServiceMockRecorder) CreateDeck(ctx, shuffled, cardCodes interface
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateDeck", reflect.TypeOf((*MockService)(nil).CreateDeck), ctx, shuffled, cardCodes)
 }
 
+// DrawCards mocks base method.
+func (m *MockService) DrawCards(ctx context.Context, id string, n int) (*entity.Cards, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DrawCards", ctx, id, n)
+	ret0, _ := ret[0].(*entity.Cards)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DrawCards indicates an expected call of DrawCards.
+func (mr *MockServiceMockRecorder) DrawCards(ctx, id, n interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DrawCards", reflect.TypeOf((*MockService)(nil).DrawCards), ctx, id, n)
+}
+
 // GetDeck mocks base method.
 func (m *MockService) GetDeck(ctx context.Context, id string) (*entity.Deck, error) {
 	m.ctrl.T.Helper()

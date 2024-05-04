@@ -13,6 +13,9 @@ const (
 
 	ErrDeckNotFound    = "carddeck.deck.not_found"
 	ErrMsgDeckNotFound = "deck not found"
+
+	ErrDeckCardInsufficient    = "carddeck.deck.card_insufficient"
+	ErrMsgDeckCardInsufficient = "card inside deck is not enough"
 )
 
 type Error struct {

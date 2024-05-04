@@ -34,6 +34,13 @@ var (
 
 		return deck
 	}()
+	defaultCards = entity.Cards{
+		{Val: "ACE", Suit: "SPADE", Code: "AS"},
+		{Val: "2", Suit: "SPADE", Code: "2S"},
+	}
+	defaultDrawCardResponse = rest.DrawCardResponse{
+		Cards: &defaultCards,
+	}
 )
 
 type HandlerTestSuite struct {
@@ -252,4 +259,117 @@ func (s *HandlerTestSuite) TestGetDeck() {
 		assert.NoError(s.T(), err)
 		assert.Equal(s.T(), string(expected), strings.TrimSuffix(string(rawResponseBody), "\n"))
 	})
+}
+
+func (s *HandlerTestSuite) TestDrawCards() {
+	tempID := "3cdc5e5a-8f56-4f70-91e6-bd564d04ce79"
+	tempCount := 2
+
+	s.Run("success", func() {
+		r := httptest.NewRequest(http.MethodGet, fmt.Sprintf("http://localhost/decks/%s/cards?count=%d", tempID, tempCount), nil)
+		w := httptest.NewRecorder()
+
+		s.svc.EXPECT().DrawCards(r.Context(), tempID, tempCount).Return(&defaultCards, nil)
+
+		h := rest.NewHandler(s.svc)
+
+		mux := http.NewServeMux()
+		mux.HandleFunc("GET /decks/{id}/cards", h.DrawCards)
+		srv := httptest.NewServer(mux)
+		defer srv.Close()
+
+		mux.ServeHTTP(w, r)
+		response := w.Result()
+
+		assert.Equal(s.T(), http.StatusOK, response.StatusCode)
+
+		rawResponseBody, err := io.ReadAll(response.Body)
+		assert.NoError(s.T(), err)
+
+		expected, err := json.Marshal(&defaultDrawCardResponse)
+		assert.NoError(s.T(), err)
+		assert.Equal(s.T(), string(expected), strings.TrimSuffix(string(rawResponseBody), "\n"))
+	})
+
+	s.Run("failed - service layer returns unexpected error", func() {
+		r := httptest.NewRequest(http.MethodGet, fmt.Sprintf("http://localhost/decks/%s/cards?count=%d", tempID, tempCount), nil)
+		w := httptest.NewRecorder()
+
+		s.svc.EXPECT().DrawCards(r.Context(), tempID, tempCount).Return(nil, errors.New("unknown error"))
+
+		h := rest.NewHandler(s.svc)
+
+		mux := http.NewServeMux()
+		mux.HandleFunc("GET /decks/{id}/cards", h.DrawCards)
+		srv := httptest.NewServer(mux)
+		defer srv.Close()
+
+		mux.ServeHTTP(w, r)
+		response := w.Result()
+
+		assert.Equal(s.T(), http.StatusInternalServerError, response.StatusCode)
+
+		rawResponseBody, err := io.ReadAll(response.Body)
+		assert.NoError(s.T(), err)
+
+		expectedError := entity.NewError(entity.ErrInternal, entity.ErrMsgInternal)
+		expected, err := json.Marshal(&expectedError)
+		assert.NoError(s.T(), err)
+		assert.Equal(s.T(), string(expected), strings.TrimSuffix(string(rawResponseBody), "\n"))
+	})
+
+	s.Run("failed - deck not found", func() {
+		r := httptest.NewRequest(http.MethodGet, fmt.Sprintf("http://localhost/decks/%s/cards?count=%d", tempID, tempCount), nil)
+		w := httptest.NewRecorder()
+
+		s.svc.EXPECT().DrawCards(r.Context(), tempID, tempCount).Return(nil, entity.NewError(entity.ErrDeckNotFound, entity.ErrMsgDeckNotFound))
+
+		h := rest.NewHandler(s.svc)
+
+		mux := http.NewServeMux()
+		mux.HandleFunc("GET /decks/{id}/cards", h.DrawCards)
+		srv := httptest.NewServer(mux)
+		defer srv.Close()
+
+		mux.ServeHTTP(w, r)
+		response := w.Result()
+
+		assert.Equal(s.T(), http.StatusNotFound, response.StatusCode)
+
+		rawResponseBody, err := io.ReadAll(response.Body)
+		assert.NoError(s.T(), err)
+
+		expectedError := entity.NewError(entity.ErrDeckNotFound, entity.ErrMsgDeckNotFound)
+		expected, err := json.Marshal(&expectedError)
+		assert.NoError(s.T(), err)
+		assert.Equal(s.T(), string(expected), strings.TrimSuffix(string(rawResponseBody), "\n"))
+	})
+
+	s.Run("failed - service layer returns invalid param for count", func() {
+		r := httptest.NewRequest(http.MethodGet, fmt.Sprintf("http://localhost/decks/%s/cards?count=%d", tempID, tempCount), nil)
+		w := httptest.NewRecorder()
+
+		s.svc.EXPECT().DrawCards(r.Context(), tempID, tempCount).Return(nil, entity.NewError(entity.ErrDeckCardInsufficient, entity.ErrMsgDeckCardInsufficient))
+
+		h := rest.NewHandler(s.svc)
+
+		mux := http.NewServeMux()
+		mux.HandleFunc("GET /decks/{id}/cards", h.DrawCards)
+		srv := httptest.NewServer(mux)
+		defer srv.Close()
+
+		mux.ServeHTTP(w, r)
+		response := w.Result()
+
+		assert.Equal(s.T(), http.StatusUnprocessableEntity, response.StatusCode)
+
+		rawResponseBody, err := io.ReadAll(response.Body)
+		assert.NoError(s.T(), err)
+
+		expectedError := entity.NewError(entity.ErrDeckCardInsufficient, entity.ErrMsgDeckCardInsufficient)
+		expected, err := json.Marshal(&expectedError)
+		assert.NoError(s.T(), err)
+		assert.Equal(s.T(), string(expected), strings.TrimSuffix(string(rawResponseBody), "\n"))
+	})
+
 }
