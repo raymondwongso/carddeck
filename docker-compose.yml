@@ -9,6 +9,18 @@ services:
       - POSTGRES_DB=carddeck_dev
     ports:
       - 5433:5432
+    volumes:
+      - ~/data/db:/var/lib/postgresql/data
+    networks:
+      - carddeck-network
+  migrate:
+    image: migrate/migrate
+    volumes:
+      - ./db:/migrations
+    depends_on:
+      - postgres
+    command: -source=file://migrations -database postgres://defaultuser:defaultpass@postgres:5432/carddeck_dev?sslmode=disable up
+    restart: on-failure
     networks:
       - carddeck-network
 

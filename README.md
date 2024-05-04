@@ -42,31 +42,3 @@ make run
 (alternatively#2, if you don't want to build the app) 
 go run .
 ```
-
-## How to Run (Windows)
-
-### Build the application
-Execute following command to build the application
-
-```go
-go build . -o carddeck
-```
-
-### Copy .env.sample to .env file
-Copy `.env.sample` file to `.env` file, change the value if needed.
-
-### Spin up dependencies
-Run docker compose to spin up dependencies
-```
-docker compose up
-```
-
-### Run the application
-Execute following command to run the application. The application will be available in `localhost:8080` by default.
-```
-.\carddeck.exe
-
-(alternatively, if you don't want to build the app)
-go run .
-```
-

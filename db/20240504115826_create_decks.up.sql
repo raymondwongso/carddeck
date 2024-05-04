@@ -1,0 +1,13 @@
+BEGIN;
+
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
+CREATE TABLE IF NOT EXISTS public.decks (
+  "id" VARCHAR(255) DEFAULT gen_random_uuid(),
+  "shuffled" BOOLEAN DEFAULT FALSE,
+  "cards" JSONB,
+  "created_at" TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT now(),
+  "updated_at" TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT now()
+);
+
+COMMIT;
