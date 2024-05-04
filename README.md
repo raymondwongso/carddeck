@@ -3,7 +3,7 @@ Go REST API for playing cards
 
 ## Prerequisites
 - [Go](https://go.dev/dl/) (1.22.X). You may use [gvm](https://github.com/moovweb/gvm) to manage multiple go version.
-- [Docker](https://docs.docker.com/engine/install/), for spinning up dependencies
+- [Docker](https://docs.docker.com/engine/install/), for running dependencies
 - make (optional, most unix already have this)
 - [Postgres](https://www.postgresql.org/download/) (alternatively if you want to install the dependencies in local)
 
@@ -20,7 +20,7 @@ make build
 ```
 
 ### Copy .env.sample to .env file
-Copy `.env.sample` file to `.env` file, change the value if needed.
+Copy `.env.sample` file to `.env` file, change the value if needed. The default value provided is already working with docker compose setup.
 ```
 cp .env.sample .env
 ```

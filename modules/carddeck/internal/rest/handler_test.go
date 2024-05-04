@@ -72,7 +72,13 @@ func (s *HandlerTestSuite) TestCreateDeck() {
 
 		rawResponseBody, err := io.ReadAll(response.Body)
 		assert.NoError(s.T(), err)
-		expected, err := json.Marshal(&defaultDeck)
+
+		expectedResp := rest.CreateDeckResponse{
+			ID:        defaultDeck.ID,
+			Shuffled:  defaultDeck.Shuffled,
+			Remaining: int64(defaultDeck.Remaining()),
+		}
+		expected, err := json.Marshal(&expectedResp)
 		assert.NoError(s.T(), err)
 		assert.Equal(s.T(), string(expected), strings.TrimSuffix(string(rawResponseBody), "\n"))
 	})
@@ -91,7 +97,13 @@ func (s *HandlerTestSuite) TestCreateDeck() {
 
 		rawResponseBody, err := io.ReadAll(response.Body)
 		assert.NoError(s.T(), err)
-		expected, err := json.Marshal(&defaultDeck)
+
+		expectedResp := rest.CreateDeckResponse{
+			ID:        defaultDeck.ID,
+			Shuffled:  defaultDeck.Shuffled,
+			Remaining: int64(defaultDeck.Remaining()),
+		}
+		expected, err := json.Marshal(&expectedResp)
 		assert.NoError(s.T(), err)
 		assert.Equal(s.T(), string(expected), strings.TrimSuffix(string(rawResponseBody), "\n"))
 	})
@@ -110,7 +122,13 @@ func (s *HandlerTestSuite) TestCreateDeck() {
 
 		rawResponseBody, err := io.ReadAll(response.Body)
 		assert.NoError(s.T(), err)
-		expected, err := json.Marshal(&defaultDeck)
+
+		expectedResp := rest.CreateDeckResponse{
+			ID:        defaultDeck.ID,
+			Shuffled:  defaultDeck.Shuffled,
+			Remaining: int64(defaultDeck.Remaining()),
+		}
+		expected, err := json.Marshal(&expectedResp)
 		assert.NoError(s.T(), err)
 		assert.Equal(s.T(), string(expected), strings.TrimSuffix(string(rawResponseBody), "\n"))
 	})

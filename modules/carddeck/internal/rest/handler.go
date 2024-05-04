@@ -83,8 +83,14 @@ func (h *Handler) CreateDeck(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	resp := CreateDeckResponse{
+		ID:        deck.ID,
+		Shuffled:  deck.Shuffled,
+		Remaining: int64(deck.Remaining()),
+	}
+
 	w.WriteHeader(http.StatusCreated)
-	if err := json.NewEncoder(w).Encode(&deck); err != nil {
+	if err := json.NewEncoder(w).Encode(&resp); err != nil {
 		log.Error().Err(err).Msg("[POST /decks] error encoding response")
 		http.Error(w, entity.ErrMsgInternal, http.StatusInternalServerError)
 	}
