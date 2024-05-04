@@ -200,5 +200,11 @@ func (s *Service) DrawCards(ctx context.Context, id string, n int64) (*entity.Ca
 		return nil, err
 	}
 
+	if n <= 0 {
+		err := entity.NewError(entity.ErrParamInvalid, entity.ErrMsgParamInvalid)
+		err.AddDetail(entity.NewErrorDetail("count", "count must be bigger than 0"))
+		return nil, err
+	}
+
 	return s.deckRepository.DrawCards(ctx, id, n)
 }

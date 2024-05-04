@@ -182,4 +182,16 @@ func (s *ServiceTestSuite) TestDrawCards() {
 		assert.Equal(s.T(), perr.Code, entity.ErrParamInvalid)
 		assert.Equal(s.T(), perr.Message, entity.ErrMsgParamInvalid)
 	})
+
+	s.Run("failed - count is zero", func() {
+		svc := service.New(s.deckRepo, s.randGenerator, s.cardShuffler)
+		cards, err := svc.DrawCards(ctx, "", 0)
+		assert.Nil(s.T(), cards)
+		assert.Error(s.T(), err)
+
+		perr, ok := err.(*entity.Error)
+		assert.True(s.T(), ok)
+		assert.Equal(s.T(), perr.Code, entity.ErrParamInvalid)
+		assert.Equal(s.T(), perr.Message, entity.ErrMsgParamInvalid)
+	})
 }
