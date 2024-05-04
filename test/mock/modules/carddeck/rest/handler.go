@@ -51,7 +51,7 @@ func (mr *MockServiceMockRecorder) CreateDeck(ctx, shuffled, cardCodes interface
 }
 
 // DrawCards mocks base method.
-func (m *MockService) DrawCards(ctx context.Context, id string, n int) (*entity.Cards, error) {
+func (m *MockService) DrawCards(ctx context.Context, id string, n int64) (*entity.Cards, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DrawCards", ctx, id, n)
 	ret0, _ := ret[0].(*entity.Cards)

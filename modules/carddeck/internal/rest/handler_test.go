@@ -263,7 +263,7 @@ func (s *HandlerTestSuite) TestGetDeck() {
 
 func (s *HandlerTestSuite) TestDrawCards() {
 	tempID := "3cdc5e5a-8f56-4f70-91e6-bd564d04ce79"
-	tempCount := 2
+	var tempCount int64 = 2
 
 	s.Run("success", func() {
 		r := httptest.NewRequest(http.MethodGet, fmt.Sprintf("http://localhost/decks/%s/cards?count=%d", tempID, tempCount), nil)
@@ -345,7 +345,7 @@ func (s *HandlerTestSuite) TestDrawCards() {
 		assert.Equal(s.T(), string(expected), strings.TrimSuffix(string(rawResponseBody), "\n"))
 	})
 
-	s.Run("failed - service layer returns invalid param for count", func() {
+	s.Run("failed - service layer returns deck insufficient error", func() {
 		r := httptest.NewRequest(http.MethodGet, fmt.Sprintf("http://localhost/decks/%s/cards?count=%d", tempID, tempCount), nil)
 		w := httptest.NewRecorder()
 
@@ -372,4 +372,29 @@ func (s *HandlerTestSuite) TestDrawCards() {
 		assert.Equal(s.T(), string(expected), strings.TrimSuffix(string(rawResponseBody), "\n"))
 	})
 
+	s.Run("failed - count parameter invalid", func() {
+		r := httptest.NewRequest(http.MethodGet, fmt.Sprintf("http://localhost/decks/%s/cards?count=%s", tempID, "not_a_number"), nil)
+		w := httptest.NewRecorder()
+
+		h := rest.NewHandler(s.svc)
+
+		mux := http.NewServeMux()
+		mux.HandleFunc("GET /decks/{id}/cards", h.DrawCards)
+		srv := httptest.NewServer(mux)
+		defer srv.Close()
+
+		mux.ServeHTTP(w, r)
+		response := w.Result()
+
+		assert.Equal(s.T(), http.StatusBadRequest, response.StatusCode)
+
+		rawResponseBody, err := io.ReadAll(response.Body)
+		assert.NoError(s.T(), err)
+
+		expectedError := entity.NewError(entity.ErrParamInvalid, entity.ErrMsgParamInvalid)
+		expectedError.AddDetail(entity.NewErrorDetail("count", "count parameter is invalid"))
+		expected, err := json.Marshal(&expectedError)
+		assert.NoError(s.T(), err)
+		assert.Equal(s.T(), string(expected), strings.TrimSuffix(string(rawResponseBody), "\n"))
+	})
 }
