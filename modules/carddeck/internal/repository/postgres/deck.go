@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"context"
+	"database/sql"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/raymondwongso/carddeck/modules/carddeck/entity"
@@ -36,6 +37,9 @@ func (d *Deck) GetByID(ctx context.Context, id string) (*entity.Deck, error) {
 	deck := entity.NewDeck(false, nil)
 	row := d.db.QueryRowxContext(ctx, query, id)
 	if err := row.Scan(&deck.ID, &deck.Cards, &deck.Shuffled, &deck.CreatedAt, &deck.UpdatedAt); err != nil {
+		if err == sql.ErrNoRows {
+			return nil, entity.NewError(entity.ErrDeckNotFound, entity.ErrMsgDeckNotFound)
+		}
 		return nil, err
 	}
 
