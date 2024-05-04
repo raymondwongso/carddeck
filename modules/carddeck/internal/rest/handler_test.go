@@ -175,13 +175,19 @@ func (s *HandlerTestSuite) TestGetDeck() {
 	tempID := "3cdc5e5a-8f56-4f70-91e6-bd564d04ce79"
 
 	s.Run("success", func() {
-		r := httptest.NewRequest(http.MethodGet, fmt.Sprintf("http://localhost/%s", tempID), nil)
+		r := httptest.NewRequest(http.MethodGet, fmt.Sprintf("http://localhost/decks/%s", tempID), nil)
 		w := httptest.NewRecorder()
 
 		s.svc.EXPECT().GetDeck(r.Context(), tempID).Return(defaultDeck, nil)
 
 		h := rest.NewHandler(s.svc)
-		h.CreateDeck(w, r)
+
+		mux := http.NewServeMux()
+		mux.HandleFunc("GET /decks/{id}", h.GetDeck)
+		srv := httptest.NewServer(mux)
+		defer srv.Close()
+
+		mux.ServeHTTP(w, r)
 		response := w.Result()
 
 		assert.Equal(s.T(), http.StatusOK, response.StatusCode)
@@ -194,13 +200,19 @@ func (s *HandlerTestSuite) TestGetDeck() {
 	})
 
 	s.Run("failed - service layer returns unexpected error", func() {
-		r := httptest.NewRequest(http.MethodGet, fmt.Sprintf("http://localhost/%s", tempID), nil)
+		r := httptest.NewRequest(http.MethodGet, fmt.Sprintf("http://localhost/decks/%s", tempID), nil)
 		w := httptest.NewRecorder()
 
 		s.svc.EXPECT().GetDeck(r.Context(), tempID).Return(nil, errors.New("unknown error"))
 
 		h := rest.NewHandler(s.svc)
-		h.CreateDeck(w, r)
+
+		mux := http.NewServeMux()
+		mux.HandleFunc("GET /decks/{id}", h.GetDeck)
+		srv := httptest.NewServer(mux)
+		defer srv.Close()
+
+		mux.ServeHTTP(w, r)
 		response := w.Result()
 
 		assert.Equal(s.T(), http.StatusInternalServerError, response.StatusCode)
@@ -215,13 +227,19 @@ func (s *HandlerTestSuite) TestGetDeck() {
 	})
 
 	s.Run("failed - deck not found", func() {
-		r := httptest.NewRequest(http.MethodGet, fmt.Sprintf("http://localhost/%s", tempID), nil)
+		r := httptest.NewRequest(http.MethodGet, fmt.Sprintf("http://localhost/decks/%s", tempID), nil)
 		w := httptest.NewRecorder()
 
 		s.svc.EXPECT().GetDeck(r.Context(), tempID).Return(nil, entity.NewError(entity.ErrDeckNotFound, entity.ErrMsgDeckNotFound))
 
 		h := rest.NewHandler(s.svc)
-		h.CreateDeck(w, r)
+
+		mux := http.NewServeMux()
+		mux.HandleFunc("GET /decks/{id}", h.GetDeck)
+		srv := httptest.NewServer(mux)
+		defer srv.Close()
+
+		mux.ServeHTTP(w, r)
 		response := w.Result()
 
 		assert.Equal(s.T(), http.StatusNotFound, response.StatusCode)

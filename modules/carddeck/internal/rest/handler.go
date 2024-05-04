@@ -95,7 +95,34 @@ func (h *Handler) CreateDeck(w http.ResponseWriter, r *http.Request) {
 // @param		id	path	string	true	"ID of the deck"
 // @router		/decks/{id} [get]
 func (h *Handler) GetDeck(w http.ResponseWriter, r *http.Request) {
-	panic("not implemented")
+	id := r.PathValue("id")
+
+	deck, err := h.svc.GetDeck(r.Context(), id)
+	if err != nil {
+		log.Error().Err(err).Msg("[GET /decks/{id}] error getting deck")
+
+		if perr, ok := err.(*entity.Error); ok {
+			switch perr.Code {
+			case entity.ErrDeckNotFound:
+				handleError(w, perr, http.StatusNotFound)
+			default:
+				handleError(w, perr, http.StatusInternalServerError)
+			}
+		} else {
+			// error is not in custom error, assume unknown error
+			handleError(
+				w,
+				entity.NewError(entity.ErrInternal, entity.ErrMsgInternal),
+				http.StatusInternalServerError)
+		}
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(w).Encode(&deck); err != nil {
+		log.Error().Err(err).Msg("[GET /decks/{id}] error encoding response")
+		http.Error(w, entity.ErrMsgInternal, http.StatusInternalServerError)
+	}
 }
 
 // @summary	Draw cards from specific deck
