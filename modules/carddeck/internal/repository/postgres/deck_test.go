@@ -3,6 +3,7 @@ package postgres_test
 import (
 	"context"
 	"database/sql/driver"
+	"errors"
 	"regexp"
 	"testing"
 	"time"
@@ -17,23 +18,21 @@ import (
 
 var (
 	timeTemp    = time.Date(2022, 1, 1, 1, 0, 0, 0, time.UTC)
-	defaultDeck = entity.Deck{
-		Cards: &entity.Cards{
+	defaultDeck = entity.NewDeck(false, &entity.Cards{
+		{Val: "ACE", Suit: "SPADE", Code: "AS"},
+		{Val: "2", Suit: "SPADE", Code: "2S"},
+	})
+	afterInsertDeck = func() *entity.Deck {
+		temp := entity.NewDeck(false, &entity.Cards{
 			{Val: "ACE", Suit: "SPADE", Code: "AS"},
 			{Val: "2", Suit: "SPADE", Code: "2S"},
-		},
-		Shuffled: false,
-	}
-	afterInsertDeck = entity.Deck{
-		ID: "temp-uuid-abc-def",
-		Cards: &entity.Cards{
-			{Val: "ACE", Suit: "SPADE", Code: "AS"},
-			{Val: "2", Suit: "SPADE", Code: "2S"},
-		},
-		Shuffled:  false,
-		CreatedAt: timeTemp,
-		UpdatedAt: timeTemp,
-	}
+		})
+		temp.ID = "temp-uuid-abc-def"
+		temp.CreatedAt = timeTemp
+		temp.UpdatedAt = timeTemp
+
+		return temp
+	}()
 )
 
 type DeckTestSuite struct {
@@ -63,12 +62,20 @@ func (s *DeckTestSuite) TestInsert() {
 		rows := sqlmock.NewRows(returningCols).AddRow(returningVals...)
 		s.dbmock.ExpectQuery(regexp.QuoteMeta(query)).WillReturnRows(rows)
 
-		deck, err := repo.Insert(context.Background(), &defaultDeck)
+		deck, err := repo.Insert(context.Background(), defaultDeck)
 		assert.NoError(s.T(), err)
 		assert.Equal(s.T(), afterInsertDeck.ID, deck.ID)
 		assert.Equal(s.T(), afterInsertDeck.Cards, deck.Cards)
 		assert.Equal(s.T(), afterInsertDeck.Remaining(), deck.Remaining())
 		assert.Equal(s.T(), afterInsertDeck.CreatedAt, deck.CreatedAt)
 		assert.Equal(s.T(), afterInsertDeck.UpdatedAt, deck.UpdatedAt)
+	})
+
+	s.Run("failed - unknown error from repository", func() {
+		s.dbmock.ExpectQuery(regexp.QuoteMeta(query)).WillReturnError(errors.New("some error"))
+
+		deck, err := repo.Insert(context.Background(), defaultDeck)
+		assert.Error(s.T(), err)
+		assert.Nil(s.T(), deck)
 	})
 }
