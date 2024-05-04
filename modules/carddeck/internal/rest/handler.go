@@ -13,11 +13,15 @@ type Service interface {
 	CreateDeck(ctx context.Context, shuffled bool, cardCodes []string) (*entity.Deck, error)
 }
 
-type Handler struct{}
+type Handler struct {
+	svc Service
+}
 
 // NewHandler creates new REST API handler.
-func NewHandler() *Handler {
-	return &Handler{}
+func NewHandler(svc Service) *Handler {
+	return &Handler{
+		svc: svc,
+	}
 }
 
 // @summary	Create new deck

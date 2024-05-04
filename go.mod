@@ -3,6 +3,7 @@ module github.com/raymondwongso/carddeck
 go 1.22.2
 
 require (
+	github.com/golang/mock v1.6.0
 	github.com/joeshaw/envdecode v0.0.0-20200121155833-099f1fc765bd
 	github.com/joho/godotenv v1.5.1
 	github.com/rs/zerolog v1.32.0

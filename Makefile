@@ -11,6 +11,10 @@ format:
 lint:
 	docker run --rm -v ./:/app -v ~/.cache/golangci-lint/$(GOLANGCILINT_VERSION):/root/.cache -w /app golangci/golangci-lint:$(GOLANGCILINT_VERSION) golangci-lint run -v
 
+.PHONY: mockgen
+mockgen:
+	bin/generate-mock.sh
+
 .PHONY: test
 test:
 	docker run --rm -v ./:/go/$(GOWORKING_DIR) golang:$(GO_VERSION) sh -c "cd $(GOWORKING_DIR); go test ./... -coverprofile=coverage.out; go tool cover --func coverage.out"

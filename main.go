@@ -66,7 +66,7 @@ func server() error {
 	if err != nil {
 		return err
 	}
-	// TODO: initiate repository, usecase and handler
+
 	handler := carddeck.BuildHandler()
 
 	mux := http.NewServeMux()
