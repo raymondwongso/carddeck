@@ -24,5 +24,4 @@ func Test_WithDetail(t *testing.T) {
 	err.AddDetail(entity.NewErrorDetail("shuffled", "shuffled is invalid"))
 
 	assert.Equal(t, 1, len(err.Details))
-
 }

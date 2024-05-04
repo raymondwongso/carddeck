@@ -28,12 +28,12 @@ func (f remainingFunc) UnmarshalJSON(b []byte) error {
 
 // Deck defines a deck of card
 type Deck struct {
-	ID        string        `json:"id"`
-	Shuffled  bool          `json:"shuffled"`
-	Remaining remainingFunc `json:"remaining"`
-	Cards     *Cards        `json:"cards,omitempty"`
-	CreatedAt time.Time     `json:"created_at"`
-	UpdatedAt time.Time     `json:"updated_at"`
+	ID        string        `json:"id" db:"id"`
+	Shuffled  bool          `json:"shuffled" db:"shuffled"`
+	Remaining remainingFunc `json:"remaining" db:"-"`
+	Cards     *Cards        `json:"cards,omitempty" db:"cards"`
+	CreatedAt time.Time     `json:"created_at" db:"created_at"`
+	UpdatedAt time.Time     `json:"updated_at" db:"updated_at"`
 }
 
 // Cards defines array of card
@@ -60,9 +60,9 @@ func (c *Cards) Value() (driver.Value, error) {
 
 // Card defines a single card
 type Card struct {
-	Val  string `json:"value"`
-	Suit string `json:"suit"`
-	Code string `json:"code"`
+	Val  string `json:"value" db:"value"`
+	Suit string `json:"suit" db:"suit"`
+	Code string `json:"code" db:"code"`
 }
 
 // Len returns the number of card available

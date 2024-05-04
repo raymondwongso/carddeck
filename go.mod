@@ -3,6 +3,7 @@ module github.com/raymondwongso/carddeck
 go 1.22.2
 
 require (
+	github.com/DATA-DOG/go-sqlmock v1.5.2
 	github.com/golang/mock v1.6.0
 	github.com/jackc/pgx/v5 v5.5.5
 	github.com/jmoiron/sqlx v1.4.0
