@@ -33,6 +33,7 @@ import (
 	"github.com/raymondwongso/carddeck/config"
 	_ "github.com/raymondwongso/carddeck/docs"
 	"github.com/raymondwongso/carddeck/modules/carddeck"
+	"github.com/raymondwongso/carddeck/modules/middleware"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 	httpSwagger "github.com/swaggo/http-swagger"
@@ -80,7 +81,7 @@ func server() error {
 
 	server := http.Server{
 		Addr:    fmt.Sprintf(":%s", config.Server.Port),
-		Handler: mux,
+		Handler: middleware.HeaderMiddleware(mux),
 	}
 
 	intrCh := make(chan os.Signal, 1)

@@ -28,7 +28,7 @@ cp .env.sample .env
 ### Spin up dependencies
 Run docker compose to spin up dependencies
 ```
-docker compose up
+docker compose up -d
 ```
 
 ### Run the application
@@ -40,5 +40,10 @@ Execute following command to run the application. The application will be availa
 make run
 
 (alternatively#2, if you don't want to build the app) 
-go run .
+go run . server
+```
+
+### Shutting down dependencies
+```
+docker compose down
 ```
