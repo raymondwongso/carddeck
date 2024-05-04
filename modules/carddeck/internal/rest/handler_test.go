@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 	"time"
 
@@ -65,7 +66,7 @@ func (s *HandlerTestSuite) TestCreateDeck() {
 		assert.NoError(s.T(), err)
 		expected, err := json.Marshal(&defaultDeck)
 		assert.NoError(s.T(), err)
-		assert.Equal(s.T(), string(expected), string(rawResponseBody))
+		assert.Equal(s.T(), string(expected), strings.TrimSuffix(string(rawResponseBody), "\n"))
 	})
 
 	s.Run("success - with shuffled and without cards parameter", func() {
@@ -84,7 +85,7 @@ func (s *HandlerTestSuite) TestCreateDeck() {
 		assert.NoError(s.T(), err)
 		expected, err := json.Marshal(&defaultDeck)
 		assert.NoError(s.T(), err)
-		assert.Equal(s.T(), string(expected), string(rawResponseBody))
+		assert.Equal(s.T(), string(expected), strings.TrimSuffix(string(rawResponseBody), "\n"))
 	})
 
 	s.Run("success - with shuffled and cards parameter", func() {
@@ -103,7 +104,7 @@ func (s *HandlerTestSuite) TestCreateDeck() {
 		assert.NoError(s.T(), err)
 		expected, err := json.Marshal(&defaultDeck)
 		assert.NoError(s.T(), err)
-		assert.Equal(s.T(), string(expected), string(rawResponseBody))
+		assert.Equal(s.T(), string(expected), strings.TrimSuffix(string(rawResponseBody), "\n"))
 	})
 
 	s.Run("failed - shuffled is invalid", func() {
@@ -123,7 +124,7 @@ func (s *HandlerTestSuite) TestCreateDeck() {
 		expectedError.AddDetail(entity.NewErrorDetail("shuffled", "shuffled parameter is invalid"))
 		expected, err := json.Marshal(&expectedError)
 		assert.NoError(s.T(), err)
-		assert.Equal(s.T(), string(expected), string(rawResponseBody))
+		assert.Equal(s.T(), string(expected), strings.TrimSuffix(string(rawResponseBody), "\n"))
 	})
 
 	s.Run("failed - service layer returns unexpected error", func() {
@@ -141,30 +142,30 @@ func (s *HandlerTestSuite) TestCreateDeck() {
 		rawResponseBody, err := io.ReadAll(response.Body)
 		assert.NoError(s.T(), err)
 
-		expectedError := entity.NewError(entity.ErrParamInvalid, entity.ErrMsgParamInvalid)
+		expectedError := entity.NewError(entity.ErrInternal, entity.ErrMsgInternal)
 		expected, err := json.Marshal(&expectedError)
 		assert.NoError(s.T(), err)
-		assert.Equal(s.T(), string(expected), string(rawResponseBody))
+		assert.Equal(s.T(), string(expected), strings.TrimSuffix(string(rawResponseBody), "\n"))
 	})
 
-	s.Run("failed - service layer returns unexpected error", func() {
+	s.Run("failed - service layer returns invalid card codes", func() {
 		r := httptest.NewRequest(http.MethodGet, "http://localhost", nil)
 		w := httptest.NewRecorder()
 
-		s.svc.EXPECT().CreateDeck(r.Context(), false, nil).Return(nil, errors.New("unknown error"))
+		s.svc.EXPECT().CreateDeck(r.Context(), false, nil).Return(nil, entity.NewError(entity.ErrCardCodeInvalid, entity.ErrMsgCardCodeInvalid))
 
 		h := rest.NewHandler(s.svc)
 		h.CreateDeck(w, r)
 		response := w.Result()
 
-		assert.Equal(s.T(), http.StatusInternalServerError, response.StatusCode)
+		assert.Equal(s.T(), http.StatusUnprocessableEntity, response.StatusCode)
 
 		rawResponseBody, err := io.ReadAll(response.Body)
 		assert.NoError(s.T(), err)
 
-		expectedError := entity.NewError(entity.ErrMsgInternal, entity.ErrMsgInternal)
+		expectedError := entity.NewError(entity.ErrCardCodeInvalid, entity.ErrMsgCardCodeInvalid)
 		expected, err := json.Marshal(&expectedError)
 		assert.NoError(s.T(), err)
-		assert.Equal(s.T(), string(expected), string(rawResponseBody))
+		assert.Equal(s.T(), string(expected), strings.TrimSuffix(string(rawResponseBody), "\n"))
 	})
 }

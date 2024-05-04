@@ -22,7 +22,7 @@ func (f remainingFunc) UnmarshalJSON(b []byte) error {
 	var i int
 	err := json.Unmarshal(b, &i)
 
-	f = func() int { return i }
+	// f = func() int { return i }
 	return err
 }
 
@@ -43,10 +43,10 @@ type Cards []*Card
 func (c *Cards) Scan(val interface{}) error {
 	switch v := val.(type) {
 	case []byte:
-		json.Unmarshal(v, &c)
+		_ = json.Unmarshal(v, &c)
 		return nil
 	case string:
-		json.Unmarshal([]byte(v), &c)
+		_ = json.Unmarshal([]byte(v), &c)
 		return nil
 	default:
 		return fmt.Errorf("unsupported type: %T", v)
