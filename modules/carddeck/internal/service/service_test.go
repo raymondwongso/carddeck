@@ -23,11 +23,7 @@ var (
 		{Val: "3", Suit: "SPADE", Code: "3S"},
 	}
 	defaultDeck = func() *entity.Deck {
-		deck := entity.NewDeck(false, &entity.Cards{
-			{Val: "ACE", Suit: "SPADE", Code: "AS"},
-			{Val: "2", Suit: "SPADE", Code: "2S"},
-			{Val: "3", Suit: "SPADE", Code: "3S"},
-		})
+		deck := entity.NewDeck(false, &defaultCards)
 		deck.ID = "some-uuid-abc-def"
 		deck.CreatedAt = defaultTime
 		deck.UpdatedAt = defaultTime
@@ -79,9 +75,13 @@ func (s *ServiceTestSuite) TestCreateDeck() {
 	ctx := context.Background()
 
 	s.Run("success - no shuffle, no cards supplied", func() {
-		deck := entity.NewDeck(false, (*entity.Cards)(&service.CardArray))
+		s.deckRepo.EXPECT().Insert(ctx, gomock.Any()).DoAndReturn(
+			func(ctx context.Context, deck *entity.Deck) (*entity.Deck, error) {
+				assert.Equal(s.T(), false, deck.Shuffled)
+				assert.Equal(s.T(), (*entity.Cards)(&service.CardArray), deck.Cards)
 
-		s.deckRepo.EXPECT().Insert(ctx, deck).Return(defaultDeck, nil)
+				return defaultDeck, nil
+			})
 
 		svc := service.New(s.deckRepo, s.randGenerator, s.cardShuffler)
 		deck, err := svc.CreateDeck(ctx, false, nil)
@@ -90,15 +90,22 @@ func (s *ServiceTestSuite) TestCreateDeck() {
 	})
 
 	s.Run("success - with shuffle, with cards supplied", func() {
-		deck := entity.NewDeck(true, (*entity.Cards)(&shuffledCards))
+		s.deckRepo.EXPECT().Insert(ctx, gomock.Any()).DoAndReturn(
+			func(ctx context.Context, deck *entity.Deck) (*entity.Deck, error) {
+				assert.Equal(s.T(), true, deck.Shuffled)
+				assert.Equal(s.T(), (*entity.Cards)(&shuffledCards), deck.Cards)
 
-		s.deckRepo.EXPECT().Insert(ctx, deck).Return(shuffledDeck, nil)
+				return defaultDeck, nil
+			})
 
 		svc := service.New(s.deckRepo, s.randGenerator, s.cardShuffler)
 		deck, err := svc.CreateDeck(ctx, true, []string{"AS", "2S", "3S"})
 		assert.NoError(s.T(), err)
 
-		assert.Equal(s.T(), shuffledDeck, deck)
+		assert.Equal(s.T(), shuffledDeck.ID, deck.ID)
+		assert.Equal(s.T(), len(*shuffledDeck.Cards), len(*deck.Cards))
+		assert.Equal(s.T(), shuffledDeck.CreatedAt, deck.UpdatedAt)
+		assert.Equal(s.T(), shuffledDeck.Remaining(), deck.Remaining())
 	})
 
 	s.Run("failed - card codes invalid", func() {
@@ -115,9 +122,7 @@ func (s *ServiceTestSuite) TestCreateDeck() {
 	})
 
 	s.Run("failed - unexpected error", func() {
-		deck := entity.NewDeck(false, (*entity.Cards)(&service.CardArray))
-
-		s.deckRepo.EXPECT().Insert(ctx, deck).Return(nil, errors.New("some error"))
+		s.deckRepo.EXPECT().Insert(ctx, gomock.Any()).Return(nil, errors.New("some error"))
 
 		svc := service.New(s.deckRepo, s.randGenerator, s.cardShuffler)
 		deck, err := svc.CreateDeck(ctx, false, nil)

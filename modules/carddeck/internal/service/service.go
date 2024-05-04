@@ -68,61 +68,61 @@ var (
 	}
 
 	CardArray = []*entity.Card{
-		{"ACE", "SPADE", "AS"},
-		{"2", "SPADE", "2S"},
-		{"3", "SPADE", "3S"},
-		{"4", "SPADE", "4S"},
-		{"5", "SPADE", "5S"},
-		{"6", "SPADE", "6S"},
-		{"7", "SPADE", "7S"},
-		{"8", "SPADE", "8S"},
-		{"9", "SPADE", "9S"},
-		{"10", "SPADE", "10S"},
-		{"JACK", "SPADE", "JS"},
-		{"QUEEN", "SPADE", "QS"},
-		{"KING", "SPADE", "KS"},
+		{Val: "ACE", Suit: "SPADE", Code: "AS"},
+		{Val: "2", Suit: "SPADE", Code: "2S"},
+		{Val: "3", Suit: "SPADE", Code: "3S"},
+		{Val: "4", Suit: "SPADE", Code: "4S"},
+		{Val: "5", Suit: "SPADE", Code: "5S"},
+		{Val: "6", Suit: "SPADE", Code: "6S"},
+		{Val: "7", Suit: "SPADE", Code: "7S"},
+		{Val: "8", Suit: "SPADE", Code: "8S"},
+		{Val: "9", Suit: "SPADE", Code: "9S"},
+		{Val: "10", Suit: "SPADE", Code: "10S"},
+		{Val: "JACK", Suit: "SPADE", Code: "JS"},
+		{Val: "QUEEN", Suit: "SPADE", Code: "QS"},
+		{Val: "KING", Suit: "SPADE", Code: "KS"},
 
-		{"ACE", "DIAMOND", "AD"},
-		{"2", "DIAMOND", "2D"},
-		{"3", "DIAMOND", "3D"},
-		{"4", "DIAMOND", "4D"},
-		{"5", "DIAMOND", "5D"},
-		{"6", "DIAMOND", "6D"},
-		{"7", "DIAMOND", "7D"},
-		{"8", "DIAMOND", "8D"},
-		{"9", "DIAMOND", "9D"},
-		{"10", "DIAMOND", "10D"},
-		{"JACK", "DIAMOND", "JD"},
-		{"QUEEN", "DIAMOND", "QD"},
-		{"KING", "DIAMOND", "KD"},
+		{Val: "ACE", Suit: "DIAMOND", Code: "AD"},
+		{Val: "2", Suit: "DIAMOND", Code: "2D"},
+		{Val: "3", Suit: "DIAMOND", Code: "3D"},
+		{Val: "4", Suit: "DIAMOND", Code: "4D"},
+		{Val: "5", Suit: "DIAMOND", Code: "5D"},
+		{Val: "6", Suit: "DIAMOND", Code: "6D"},
+		{Val: "7", Suit: "DIAMOND", Code: "7D"},
+		{Val: "8", Suit: "DIAMOND", Code: "8D"},
+		{Val: "9", Suit: "DIAMOND", Code: "9D"},
+		{Val: "10", Suit: "DIAMOND", Code: "10D"},
+		{Val: "JACK", Suit: "DIAMOND", Code: "JD"},
+		{Val: "QUEEN", Suit: "DIAMOND", Code: "QD"},
+		{Val: "KING", Suit: "DIAMOND", Code: "KD"},
 
-		{"ACE", "CLUB", "AC"},
-		{"2", "CLUB", "2C"},
-		{"3", "CLUB", "3C"},
-		{"4", "CLUB", "4C"},
-		{"5", "CLUB", "5C"},
-		{"6", "CLUB", "6C"},
-		{"7", "CLUB", "7C"},
-		{"8", "CLUB", "8C"},
-		{"9", "CLUB", "9C"},
-		{"10", "CLUB", "10C"},
-		{"JACK", "CLUB", "JC"},
-		{"QUEEN", "CLUB", "QC"},
-		{"KING", "CLUB", "KC"},
+		{Val: "ACE", Suit: "CLUB", Code: "AC"},
+		{Val: "2", Suit: "CLUB", Code: "2C"},
+		{Val: "3", Suit: "CLUB", Code: "3C"},
+		{Val: "4", Suit: "CLUB", Code: "4C"},
+		{Val: "5", Suit: "CLUB", Code: "5C"},
+		{Val: "6", Suit: "CLUB", Code: "6C"},
+		{Val: "7", Suit: "CLUB", Code: "7C"},
+		{Val: "8", Suit: "CLUB", Code: "8C"},
+		{Val: "9", Suit: "CLUB", Code: "9C"},
+		{Val: "10", Suit: "CLUB", Code: "10C"},
+		{Val: "JACK", Suit: "CLUB", Code: "JC"},
+		{Val: "QUEEN", Suit: "CLUB", Code: "QC"},
+		{Val: "KING", Suit: "CLUB", Code: "KC"},
 
-		{"ACE", "HEART", "AH"},
-		{"2", "HEART", "2H"},
-		{"3", "HEART", "3H"},
-		{"4", "HEART", "4H"},
-		{"5", "HEART", "5H"},
-		{"6", "HEART", "6H"},
-		{"7", "HEART", "7H"},
-		{"8", "HEART", "8H"},
-		{"9", "HEART", "9H"},
-		{"10", "HEART", "10H"},
-		{"JACK", "HEART", "JH"},
-		{"QUEEN", "HEART", "QH"},
-		{"KING", "HEART", "KH"},
+		{Val: "ACE", Suit: "HEART", Code: "AH"},
+		{Val: "2", Suit: "HEART", Code: "2H"},
+		{Val: "3", Suit: "HEART", Code: "3H"},
+		{Val: "4", Suit: "HEART", Code: "4H"},
+		{Val: "5", Suit: "HEART", Code: "5H"},
+		{Val: "6", Suit: "HEART", Code: "6H"},
+		{Val: "7", Suit: "HEART", Code: "7H"},
+		{Val: "8", Suit: "HEART", Code: "8H"},
+		{Val: "9", Suit: "HEART", Code: "9H"},
+		{Val: "10", Suit: "HEART", Code: "10H"},
+		{Val: "JACK", Suit: "HEART", Code: "JH"},
+		{Val: "QUEEN", Suit: "HEART", Code: "QH"},
+		{Val: "KING", Suit: "HEART", Code: "KH"},
 	}
 )
 
@@ -153,7 +153,25 @@ func New(dr DeckRepository, randGenerator RandomGenerator, cardShuffler CardShuf
 
 // CreateDeck create deck
 func (s *Service) CreateDeck(ctx context.Context, shuffled bool, cardCodes []string) (*entity.Deck, error) {
-	panic("not implemented")
+	cards := CardArray
+
+	if len(cardCodes) > 0 {
+		cards = make([]*entity.Card, len(cardCodes))
+		for i, code := range cardCodes {
+			card, ok := CardMapping[code]
+			if !ok {
+				return nil, entity.NewError(entity.ErrCardCodeInvalid, entity.ErrMsgCardCodeInvalid)
+			}
+			cards[i] = &card
+		}
+	}
+
+	if shuffled {
+		cards = s.shuffleCard(s.generateRandom(), cards)
+	}
+
+	deck := entity.NewDeck(shuffled, (*entity.Cards)(&cards))
+	return s.deckRepository.Insert(ctx, deck)
 }
 
 // GetDeck get deck by ID
