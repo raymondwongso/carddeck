@@ -79,3 +79,31 @@ func (s *DeckTestSuite) TestInsert() {
 		assert.Nil(s.T(), deck)
 	})
 }
+
+func (s *DeckTestSuite) TestGetByID() {
+	repo := postgres.NewDeck(s.dbx)
+	returningCols := []string{"id", "cards", "shuffled", "created_at", "updated_at"}
+	returningVals := []driver.Value{"temp-uuid-abc-def", []byte(`[{"value": "ACE", "suit": "SPADE", "code": "AS"},{"value": "2", "suit": "SPADE", "code": "2S"}]`), false, timeTemp, timeTemp}
+	query := `SELECT id, cards, shuffled, created_at, updated_at FROM public.decks WHERE id = $1`
+
+	s.Run("success", func() {
+		rows := sqlmock.NewRows(returningCols).AddRow(returningVals...)
+		s.dbmock.ExpectQuery(regexp.QuoteMeta(query)).WillReturnRows(rows)
+
+		deck, err := repo.GetByID(context.Background(), "temp-uuid-abc-def")
+		assert.NoError(s.T(), err)
+		assert.Equal(s.T(), afterInsertDeck.ID, deck.ID)
+		assert.Equal(s.T(), afterInsertDeck.Cards, deck.Cards)
+		assert.Equal(s.T(), afterInsertDeck.Remaining(), deck.Remaining())
+		assert.Equal(s.T(), afterInsertDeck.CreatedAt, deck.CreatedAt)
+		assert.Equal(s.T(), afterInsertDeck.UpdatedAt, deck.UpdatedAt)
+	})
+
+	s.Run("failed - unknown error from repository", func() {
+		s.dbmock.ExpectQuery(regexp.QuoteMeta(query)).WillReturnError(errors.New("some error"))
+
+		deck, err := repo.GetByID(context.Background(), "abc")
+		assert.Error(s.T(), err)
+		assert.Nil(s.T(), deck)
+	})
+}
