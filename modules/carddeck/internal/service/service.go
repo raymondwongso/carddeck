@@ -179,7 +179,13 @@ func (s *Service) CreateDeck(ctx context.Context, shuffled bool, cardCodes []str
 //
 //	deck not found
 func (s *Service) GetDeck(ctx context.Context, id string) (*entity.Deck, error) {
-	panic("not implemented")
+	if id == "" {
+		err := entity.NewError(entity.ErrParamInvalid, entity.ErrMsgParamInvalid)
+		err.AddDetail(entity.NewErrorDetail("id", "ID is empty"))
+		return nil, err
+	}
+
+	return s.deckRepository.GetByID(ctx, id)
 }
 
 // DrawCards draw cards according to n parameter
@@ -188,5 +194,11 @@ func (s *Service) GetDeck(ctx context.Context, id string) (*entity.Deck, error) 
 //	deck not found
 //	n is larger than remaining card in deck
 func (s *Service) DrawCards(ctx context.Context, id string, n int64) (*entity.Cards, error) {
-	panic("not implemented")
+	if id == "" {
+		err := entity.NewError(entity.ErrParamInvalid, entity.ErrMsgParamInvalid)
+		err.AddDetail(entity.NewErrorDetail("id", "ID is empty"))
+		return nil, err
+	}
+
+	return s.deckRepository.DrawCards(ctx, id, n)
 }

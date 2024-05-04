@@ -130,3 +130,56 @@ func (s *ServiceTestSuite) TestCreateDeck() {
 		assert.Error(s.T(), err)
 	})
 }
+
+func (s *ServiceTestSuite) TestGetDeck() {
+	ctx := context.Background()
+	id := "some_id"
+
+	s.Run("success", func() {
+		s.deckRepo.EXPECT().GetByID(ctx, id).Return(defaultDeck, nil)
+
+		svc := service.New(s.deckRepo, s.randGenerator, s.cardShuffler)
+		deck, err := svc.GetDeck(ctx, id)
+		assert.NoError(s.T(), err)
+		assert.Equal(s.T(), defaultDeck, deck)
+	})
+
+	s.Run("failed - id empty", func() {
+		svc := service.New(s.deckRepo, s.randGenerator, s.cardShuffler)
+		deck, err := svc.GetDeck(ctx, "")
+		assert.Nil(s.T(), deck)
+		assert.Error(s.T(), err)
+
+		perr, ok := err.(*entity.Error)
+		assert.True(s.T(), ok)
+		assert.Equal(s.T(), perr.Code, entity.ErrParamInvalid)
+		assert.Equal(s.T(), perr.Message, entity.ErrMsgParamInvalid)
+	})
+}
+
+func (s *ServiceTestSuite) TestDrawCards() {
+	ctx := context.Background()
+	id := "some_id"
+	var n int64 = 2
+
+	s.Run("success", func() {
+		s.deckRepo.EXPECT().DrawCards(ctx, id, n).Return(&defaultCards, nil)
+
+		svc := service.New(s.deckRepo, s.randGenerator, s.cardShuffler)
+		cards, err := svc.DrawCards(ctx, id, n)
+		assert.NoError(s.T(), err)
+		assert.Equal(s.T(), &defaultCards, cards)
+	})
+
+	s.Run("failed - id empty", func() {
+		svc := service.New(s.deckRepo, s.randGenerator, s.cardShuffler)
+		cards, err := svc.DrawCards(ctx, "", n)
+		assert.Nil(s.T(), cards)
+		assert.Error(s.T(), err)
+
+		perr, ok := err.(*entity.Error)
+		assert.True(s.T(), ok)
+		assert.Equal(s.T(), perr.Code, entity.ErrParamInvalid)
+		assert.Equal(s.T(), perr.Message, entity.ErrMsgParamInvalid)
+	})
+}

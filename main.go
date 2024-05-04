@@ -91,7 +91,7 @@ func server() error {
 			log.Fatal().Err(err).Msg("error running server")
 		}
 	}()
-	log.Info().Msg("server started")
+	log.Info().Msgf("server started at port %s", config.Server.Port)
 
 	<-intrCh
 
