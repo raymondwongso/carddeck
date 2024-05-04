@@ -67,7 +67,10 @@ func server() error {
 		return err
 	}
 
-	handler := carddeck.BuildHandler()
+	handler, err := carddeck.BuildHandler(config)
+	if err != nil {
+		return err
+	}
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /swagger/*", httpSwagger.WrapHandler)

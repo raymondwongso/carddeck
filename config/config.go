@@ -7,7 +7,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-type config struct {
+type Config struct {
 	Server   server
 	Postgres postgres
 }
@@ -21,10 +21,11 @@ type server struct {
 }
 
 type postgres struct {
-	Host string `env:"POSTGRES_HOST,default=localhost"`
-	Port string `env:"POSTGRES_PORT,default=5432"`
-	User string `env:"POSTGRES_USER,default=defaultuser"`
-	Pass string `env:"POSTGRESS_PASS,default=defaultpass"`
+	Host         string `env:"POSTGRES_HOST,default=localhost"`
+	Port         string `env:"POSTGRES_PORT,default=5432"`
+	User         string `env:"POSTGRES_USER,default=defaultuser"`
+	Pass         string `env:"POSTGRESS_PASS,default=defaultpass"`
+	DatabaseName string `env:"POSTGRESS_DBNAME,default=carddeck_dev"`
 	// in production, typically we will have more configuration parameters
 	// such as max_open_conn, max_conn_idle, etc.
 }
@@ -33,13 +34,13 @@ type postgres struct {
 // env provided in filepath.
 // filepath is the path to additional env files
 // return error if decoding failed, in which it is advised to abort further operation
-func Load(filepath ...string) (*config, error) {
+func Load(filepath ...string) (*Config, error) {
 	// load additional env from specified filepath
 	if len(filepath) > 0 {
 		_ = godotenv.Load(filepath...)
 	}
 
-	var config config
+	var config Config
 	if err := envdecode.Decode(&config); err != nil {
 		log.Error().Err(err).Msg("failed decoding env")
 		return nil, err
