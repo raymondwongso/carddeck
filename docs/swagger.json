@@ -1,0 +1,83 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "contact": {}
+    },
+    "paths": {
+        "/decks": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "carddeck"
+                ],
+                "summary": "Create new deck",
+                "parameters": [
+                    {
+                        "type": "boolean",
+                        "description": "Specify whether newly created deck is shuffled or not",
+                        "name": "shuffled",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Specify cards used in this newly created deck",
+                        "name": "cards",
+                        "in": "query"
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/decks/{id}": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "carddeck"
+                ],
+                "summary": "\"Open\" a new deck, or get deck by specific ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID of the deck",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/decks/{id}/cards": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "carddeck"
+                ],
+                "summary": "Draw cards from specific deck",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID of the deck",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Number of cards to withdraw",
+                        "name": "count",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        }
+    }
+}

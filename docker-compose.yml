@@ -1,0 +1,16 @@
+version: '3'
+
+services:
+  postgres:
+    image: postgres:13.2-alpine
+    environment:
+      - POSTGRES_USER=defaultuser
+      - POSTGRES_PASSWORD=defaultpass
+      - POSTGRES_DB=carddeck_dev
+    ports:
+      - 5433:5432
+    networks:
+      - carddeck-network
+
+networks:
+  carddeck-network:

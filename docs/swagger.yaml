@@ -1,0 +1,54 @@
+info:
+  contact: {}
+paths:
+  /decks:
+    get:
+      parameters:
+      - description: Specify whether newly created deck is shuffled or not
+        in: query
+        name: shuffled
+        type: boolean
+      - description: Specify cards used in this newly created deck
+        in: query
+        name: cards
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: Create new deck
+      tags:
+      - carddeck
+  /decks/{id}:
+    get:
+      parameters:
+      - description: ID of the deck
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: '"Open" a new deck, or get deck by specific ID'
+      tags:
+      - carddeck
+  /decks/{id}/cards:
+    get:
+      parameters:
+      - description: ID of the deck
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Number of cards to withdraw
+        in: query
+        name: count
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      summary: Draw cards from specific deck
+      tags:
+      - carddeck
+swagger: "2.0"
