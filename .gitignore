@@ -1,5 +1,5 @@
-# exclude binary
-carddeck
-
 # exclude local env
 .env
+
+# exclude coverage reports
+*.out

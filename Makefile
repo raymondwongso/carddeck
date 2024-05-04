@@ -13,7 +13,7 @@ lint:
 
 .PHONY: test
 test:
-	docker run --rm -v ./:/go/$(GOWORKING_DIR) golang:$(GO_VERSION) sh -c "cd $(GOWORKING_DIR); go test ./..."
+	docker run --rm -v ./:/go/$(GOWORKING_DIR) golang:$(GO_VERSION) sh -c "cd $(GOWORKING_DIR); go test ./... -coverprofile=coverage.out; go tool cover --func coverage.out"
 
 .PHONY: swagger
 swagger:
