@@ -70,9 +70,9 @@ func (c Cards) Len() int { return len(c) }
 
 // Draw draws n number of card, while also returning the remaining cards.
 // Return error if n is larger than available cards.
-func (c Cards) Draw(n int) (drawedCards Cards, remainingCards Cards, err error) {
-	if n > c.Len() {
-		return nil, nil, errors.New("count is bigger than card len")
+func (c Cards) Draw(n int64) (drawedCards Cards, remainingCards Cards, err error) {
+	if n > int64(c.Len()) {
+		return nil, nil, NewError(ErrDeckCardInsufficient, ErrMsgDeckCardInsufficient)
 	}
 
 	return c[:n], c[n:], nil

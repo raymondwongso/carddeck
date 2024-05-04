@@ -145,7 +145,7 @@ func (s *DeckTestSuite) TestDrawCards() {
 
 		cards, err := repo.DrawCards(context.Background(), "temp-uuid-abc-def", 1)
 		assert.NoError(s.T(), err)
-		assert.Equal(s.T(), afterDrawCards, cards)
+		assert.Equal(s.T(), &afterDrawCards, cards)
 	})
 
 	s.Run("failed - begin transaction failed", func() {
@@ -177,8 +177,8 @@ func (s *DeckTestSuite) TestDrawCards() {
 		s.dbmock.ExpectRollback()
 
 		cards, err := repo.DrawCards(context.Background(), "temp-uuid-abc-def", 1)
-		assert.NoError(s.T(), err)
-		assert.Equal(s.T(), afterDrawCards, cards)
+		assert.Error(s.T(), err)
+		assert.Nil(s.T(), cards)
 	})
 
 	s.Run("failed - commit failed", func() {
@@ -192,8 +192,8 @@ func (s *DeckTestSuite) TestDrawCards() {
 		s.dbmock.ExpectCommit().WillReturnError(errors.New("some error"))
 
 		cards, err := repo.DrawCards(context.Background(), "temp-uuid-abc-def", 1)
-		assert.NoError(s.T(), err)
-		assert.Equal(s.T(), afterDrawCards, cards)
+		assert.Error(s.T(), err)
+		assert.Nil(s.T(), cards)
 	})
 
 	s.Run("failed - rollback failed", func() {
@@ -206,7 +206,25 @@ func (s *DeckTestSuite) TestDrawCards() {
 		s.dbmock.ExpectRollback().WillReturnError(errors.New("some error"))
 
 		cards, err := repo.DrawCards(context.Background(), "temp-uuid-abc-def", 1)
-		assert.NoError(s.T(), err)
-		assert.Equal(s.T(), afterDrawCards, cards)
+		assert.Error(s.T(), err)
+		assert.Nil(s.T(), cards)
+	})
+
+	s.Run("failed - draw count is larger than available", func() {
+		s.dbmock.ExpectBegin()
+
+		selectRows := sqlmock.NewRows(returningCols).AddRow(selectVals...)
+		s.dbmock.ExpectQuery(regexp.QuoteMeta(selectForUpdateQuery)).WillReturnRows(selectRows)
+
+		s.dbmock.ExpectRollback()
+
+		cards, err := repo.DrawCards(context.Background(), "temp-uuid-abc-def", 999)
+		assert.Error(s.T(), err)
+		assert.Nil(s.T(), cards)
+
+		perr, ok := err.(*entity.Error)
+		assert.True(s.T(), ok)
+		assert.Equal(s.T(), entity.ErrDeckCardInsufficient, perr.Code)
+		assert.Equal(s.T(), entity.ErrMsgDeckCardInsufficient, perr.Message)
 	})
 }

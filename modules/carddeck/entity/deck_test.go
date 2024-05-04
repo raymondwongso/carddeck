@@ -63,6 +63,11 @@ func Test_Cards_Draw(t *testing.T) {
 
 		_, _, err := cards.Draw(4)
 		assert.Error(t, err)
+
+		perr, ok := err.(*entity.Error)
+		assert.True(t, ok)
+		assert.Equal(t, entity.ErrDeckCardInsufficient, perr.Code)
+		assert.Equal(t, entity.ErrMsgDeckCardInsufficient, perr.Message)
 	})
 }
 

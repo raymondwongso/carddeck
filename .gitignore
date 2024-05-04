@@ -3,3 +3,4 @@
 
 # exclude coverage reports
 *.out
+coverage.html

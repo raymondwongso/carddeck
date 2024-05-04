@@ -2,6 +2,7 @@ GO_VERSION 						= $(shell awk '$$1 ~ /^go$$/ {print $$2}' go.mod)
 GOIMPORTS_VERSION 		= v0.20.0
 GOWORKING_DIR 				= src/app
 GOLANGCILINT_VERSION 	= v1.57.2
+GO_FILES							= $(shell go list ./... | grep -v /docs | grep -v /config)
 
 .PHONY: format
 format:
@@ -17,7 +18,7 @@ mockgen:
 
 .PHONY: test
 test:
-	docker run --rm -v ./:/go/$(GOWORKING_DIR) golang:$(GO_VERSION) sh -c "cd $(GOWORKING_DIR); go test ./... -coverprofile=coverage.out; go tool cover --func coverage.out"
+	bin/test.sh
 
 .PHONY: swagger
 swagger:
